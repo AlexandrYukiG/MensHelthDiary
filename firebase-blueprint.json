@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "DiaryEntry": {
+      "title": "DiaryEntry",
+      "description": "An entry in the men's health diary.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user ID of the owner."
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date of the entry."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["activity", "skip"],
+          "description": "Whether it was an activity or a skip."
+        },
+        "position": {
+          "type": "string",
+          "description": "The position used."
+        },
+        "count": {
+          "type": "number",
+          "description": "Number of times."
+        },
+        "duration": {
+          "type": "number",
+          "description": "Duration in minutes."
+        },
+        "rating": {
+          "type": "number",
+          "description": "Rating from 1 to 5."
+        },
+        "problems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of problems encountered."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes."
+        },
+        "skipReason": {
+          "type": "string",
+          "description": "Reason for skipping."
+        },
+        "skipNotes": {
+          "type": "string",
+          "description": "Notes for skipping."
+        }
+      },
+      "required": ["uid", "date", "type"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/entries/{entryId}": {
+      "schema": {
+        "$ref": "#/entities/DiaryEntry"
+      },
+      "description": "Diary entries for a specific user."
+    }
+  }
+}
