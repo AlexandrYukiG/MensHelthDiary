@@ -102,10 +102,28 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
     }
   }, [initialData, reset, isOpen]);
 
+  const [entryDate, setEntryDate] = React.useState<string>(format(selectedDate, 'yyyy-MM-dd'));
+
+  React.useEffect(() => {
+    if (initialData) {
+      setEntryDate(format(new Date(initialData.date), 'yyyy-MM-dd'));
+    } else {
+      setEntryDate(format(selectedDate, 'yyyy-MM-dd'));
+    }
+  }, [initialData, selectedDate, isOpen]);
+
   const onFormSubmit = (data: z.infer<typeof formSchema>) => {
+    let finalDate = selectedDate;
+    if (entryDate) {
+      const parsed = new Date(entryDate);
+      if (!isNaN(parsed.getTime())) {
+        finalDate = parsed;
+      }
+    }
+
     onSubmit({
       ...data,
-      date: selectedDate.toISOString(),
+      date: finalDate.toISOString(),
       id: initialData?.id || Math.random().toString(36).substr(2, 9),
     } as DiaryEntry);
     onClose();
@@ -133,14 +151,28 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
     console.error('Form validation errors:', errors);
   };
 
+  const displayDate = entryDate && !isNaN(new Date(entryDate).getTime()) 
+    ? new Date(entryDate) 
+    : selectedDate;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Запис за {format(selectedDate, 'PPP', { locale: uk })}</DialogTitle>
+          <DialogTitle>Запис за {format(displayDate, 'PPP', { locale: uk })}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onFormSubmit, onFormError)} className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label>Дата</Label>
+            <Input 
+              type="date" 
+              value={entryDate} 
+              onChange={(e) => setEntryDate(e.target.value)} 
+              className="w-full"
+            />
+          </div>
+
           <Tabs value={type} onValueChange={(val) => setValue('type', val as 'activity' | 'skip')}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="activity">Активність</TabsTrigger>

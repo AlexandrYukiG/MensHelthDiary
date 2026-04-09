@@ -508,7 +508,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <header className="bg-white border-b sticky top-0 z-10">
+      <header className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
@@ -578,7 +578,7 @@ export default function App() {
                     {!showConfirmDeleteAll ? (
                       <Button 
                         variant="destructive" 
-                        className="w-full bg-red-600 hover:bg-red-700" 
+                        className="w-full bg-red-600 hover:bg-red-700 text-white" 
                         onClick={() => setShowConfirmDeleteAll(true)}
                       >
                         Очистити всі дані
@@ -589,7 +589,7 @@ export default function App() {
                         <div className="flex gap-2">
                           <Button 
                             variant="destructive" 
-                            className="flex-1" 
+                            className="flex-1 bg-red-600 hover:bg-red-700 text-white" 
                             onClick={handleDeleteAll}
                           >
                             Так, видалити

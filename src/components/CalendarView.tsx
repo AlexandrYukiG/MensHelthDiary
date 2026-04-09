@@ -32,13 +32,7 @@ export function CalendarView({ entries, onDateSelect, onAddEntry, onEditEntry, o
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Heart className="w-5 h-5 text-red-500" />
-          Інтимний Календар
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col md:flex-row gap-8">
+      <CardContent className="flex flex-col md:flex-row gap-8 pt-6">
         <div className="flex-1">
           <Calendar
             mode="single"
