@@ -135,7 +135,7 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Запис за {format(selectedDate, 'PPP', { locale: uk })}</DialogTitle>
         </DialogHeader>
@@ -164,7 +164,7 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Моя еякуляція (разів)</Label>
                   <Input type="number" {...register('count', { valueAsNumber: true })} />
@@ -177,7 +177,7 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Хто був ініціатором</Label>
                   <Input {...register('initiator')} placeholder="Наприклад: Я, Вона, Разом" />
@@ -191,13 +191,13 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
 
               <div className="space-y-2">
                 <Label>Оцінка (1-5)</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2">
                   {[1, 2, 3, 4, 5].map(r => (
                     <Button
                       key={r}
                       type="button"
                       variant={watch('rating') === r ? 'default' : 'outline'}
-                      className="w-full"
+                      className="flex-1 px-0"
                       onClick={() => setValue('rating', r)}
                     >
                       {r}

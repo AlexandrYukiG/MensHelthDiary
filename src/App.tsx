@@ -244,8 +244,8 @@ export default function App() {
       positions: getColIdx(['поза', '🗂️']),
       skipReason: getColIdx(['причина', '❓']),
       duration: getColIdx(['час', '⏱️']),
-      problems: getColIdx(['ерекц', '🕡']),
-      myCount: getColIdx(['моя', '💦']),
+      problems: getColIdx(['ерекц', '🕡', 'проблеми']),
+      myCount: getColIdx(['моя', '💦', 'еакуляція', 'еякуляція']),
       herCount: getColIdx(['її', '🌊']),
       initiator: getColIdx(['ініціат', '🗝️']),
       rating: getColIdx(['оцінка', '📊']),
@@ -342,9 +342,16 @@ export default function App() {
               entryData.duration = parseInt(durationRaw);
             }
 
-            const probVal = colMap.problems !== -1 ? String(row[colMap.problems] || '').trim().toUpperCase() : '';
-            if (probVal === 'TRUE' || probVal === 'ІСТИНА' || probVal === '1' || probVal === 'ТАК' || row[colMap.problems] === true || (probVal && probVal !== '-')) {
+            const probVal = colMap.problems !== -1 ? String(row[colMap.problems] || '').trim() : '';
+            const probValUpper = probVal.toUpperCase();
+            
+            if (probValUpper === 'TRUE' || probValUpper === 'ІСТИНА' || probValUpper === '1' || probValUpper === 'ТАК' || probValUpper === 'YES' || row[colMap.problems] === true) {
               entryData.problems = ['Проблеми з ерекцією'];
+            } else if (probValUpper === 'FALSE' || probValUpper === 'ХИБНІСТЬ' || probValUpper === '0' || probValUpper === 'НІ' || probValUpper === 'NO' || row[colMap.problems] === false || probVal === '-' || probVal === '') {
+              // No problems
+            } else {
+              // Custom text provided
+              entryData.problems = [probVal as any];
             }
 
             const myCountLower = myCountRaw.toLowerCase();
