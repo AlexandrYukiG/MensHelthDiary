@@ -11,15 +11,16 @@ import { CalendarView } from './components/CalendarView';
 import { DiaryEntryForm } from './components/DiaryEntryForm';
 import { StatsDashboard } from './components/StatsDashboard';
 import { DiaryEntry } from './types';
-import { LayoutDashboard, Calendar as CalendarIcon, Heart, PlusCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, Calendar as CalendarIcon, Heart, PlusCircle, LogOut, Settings, Download, Upload, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { motion, AnimatePresence } from 'motion/react';
 import { auth, db, signInWithGoogle, logOut } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, query, getDocFromServer } from 'firebase/firestore';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
-import { Upload, Trash2 } from 'lucide-react';
+import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -462,6 +463,61 @@ export default function App() {
     }
   };
 
+  const handleExport = () => {
+    if (!entries || entries.length === 0) {
+      toast.info('Немає даних для експорту');
+      return;
+    }
+
+    const exportData = entries.map(entry => {
+      if (entry.type === 'activity') {
+        return {
+          'Дата': format(new Date(entry.date), 'dd.MM.yyyy'),
+          'Тип': 'Активність',
+          'Пози': entry.positions?.join(', ') || '',
+          'Моя еякуляція': entry.count || 0,
+          'Її оргазм': entry.herCount || 0,
+          'Ініціатор': entry.initiator || '',
+          'Тривалість (хв)': entry.duration || '',
+          'Оцінка': entry.rating || '',
+          'Проблеми': entry.problems?.join(', ') || '',
+          'Іграшки': entry.toys || '',
+          'Нотатки': entry.notes || '',
+          'Причина пропуску': '',
+          'Нотатки до пропуску': ''
+        };
+      } else {
+        return {
+          'Дата': format(new Date(entry.date), 'dd.MM.yyyy'),
+          'Тип': 'Пропуск',
+          'Пози': '',
+          'Моя еякуляція': '',
+          'Її оргазм': '',
+          'Ініціатор': '',
+          'Тривалість (хв)': '',
+          'Оцінка': '',
+          'Проблеми': '',
+          'Іграшки': '',
+          'Нотатки': '',
+          'Причина пропуску': entry.skipReason || '',
+          'Нотатки до пропуску': entry.skipNotes || ''
+        };
+      }
+    });
+
+    const csv = Papa.unparse(exportData);
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: 'text/csv;charset=utf-8;' }); // Add BOM for Excel
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `intimate_diary_export_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success('Дані успішно експортовано');
+  };
+
   const handleSubmitEntry = async (data: Partial<DiaryEntry>) => {
     if (!user) return;
     
@@ -524,18 +580,8 @@ export default function App() {
               ref={fileInputRef}
               onChange={handleImportFile}
             />
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => fileInputRef.current?.click()}>
-              <Upload className="w-4 h-4" />
-              <span className="hidden sm:inline">Імпорт</span>
-            </Button>
             
             <Dialog open={isDataManageOpen} onOpenChange={setIsDataManageOpen}>
-              <DialogTrigger render={
-                <Button variant="outline" size="sm" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50" />
-              }>
-                <Trash2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Дані</span>
-              </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Керування даними</DialogTitle>
@@ -609,13 +655,33 @@ export default function App() {
               </DialogContent>
             </Dialog>
 
-            <Button onClick={() => handleAddEntry(new Date())} className="rounded-full gap-2" size="sm">
-              <PlusCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Записати сьогодні</span>
-            </Button>
-            <Button variant="ghost" size="icon" onClick={logOut} title="Вийти">
-              <LogOut className="w-5 h-5 text-slate-500" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" title="Налаштування">
+                  <Settings className="w-5 h-5 text-slate-500" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="w-4 h-4 mr-2" />
+                  <span>Імпорт даних</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExport}>
+                  <Download className="w-4 h-4 mr-2" />
+                  <span>Експорт даних</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setIsDataManageOpen(true)} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  <span>Керування даними</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  <span>Вийти</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

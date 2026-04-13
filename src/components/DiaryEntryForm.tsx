@@ -49,10 +49,6 @@ interface DiaryEntryFormProps {
   initialData?: DiaryEntry | null;
 }
 
-const POSITIONS: Position[] = [
-  'Місіонерська', 'Ззаду (Doggy Style)', 'Наїздниця', 'Зворотна наїздниця', 'Ложки', 'Стоячи', 'Інше'
-];
-
 const SKIP_REASONS: SkipReason[] = [
   'Втома', 'Стрес', 'Хвороба', 'Відсутність бажання', 'Партнер не готовий', 'Місячні', 'Інше'
 ];
@@ -82,6 +78,7 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
     register('rating');
     register('problems');
     register('skipReason');
+    register('initiator');
   }, [register]);
 
   React.useEffect(() => {
@@ -138,13 +135,23 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
     }
   };
 
-  const togglePosition = (position: Position) => {
-    const current = selectedPositions;
-    if (current.includes(position)) {
-      setValue('positions', current.filter(p => p !== position));
-    } else {
-      setValue('positions', [...current, position]);
+  const [positionInput, setPositionInput] = React.useState('');
+
+  const handlePositionKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const newTag = positionInput.trim();
+      if (newTag && !selectedPositions.includes(newTag)) {
+        setValue('positions', [...selectedPositions, newTag]);
+      }
+      setPositionInput('');
+    } else if (e.key === 'Backspace' && !positionInput && selectedPositions.length > 0) {
+      setValue('positions', selectedPositions.slice(0, -1));
     }
+  };
+
+  const removePosition = (posToRemove: string) => {
+    setValue('positions', selectedPositions.filter(p => p !== posToRemove));
   };
 
   const onFormError = (errors: any) => {
@@ -181,18 +188,32 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
             
             <TabsContent value="activity" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label>Пози</Label>
-                <div className="flex flex-wrap gap-2">
-                  {POSITIONS.map(p => (
+                <Label>Пози (через кому або Enter)</Label>
+                <div className="flex flex-wrap gap-2 p-2 border rounded-md min-h-[42px] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                  {selectedPositions.map(p => (
                     <Badge
                       key={p}
-                      variant={selectedPositions.includes(p) ? 'default' : 'outline'}
-                      className="cursor-pointer"
-                      onClick={() => togglePosition(p)}
+                      variant="secondary"
+                      className="flex items-center gap-1"
                     >
                       {p}
+                      <button
+                        type="button"
+                        onClick={() => removePosition(p)}
+                        className="text-muted-foreground hover:text-foreground focus:outline-none"
+                      >
+                        &times;
+                      </button>
                     </Badge>
                   ))}
+                  <input
+                    type="text"
+                    value={positionInput}
+                    onChange={(e) => setPositionInput(e.target.value)}
+                    onKeyDown={handlePositionKeyDown}
+                    className="flex-1 min-w-[120px] bg-transparent outline-none text-sm"
+                    placeholder={selectedPositions.length === 0 ? "Введіть пози..." : ""}
+                  />
                 </div>
               </div>
 
@@ -211,8 +232,20 @@ export function DiaryEntryForm({ isOpen, onClose, onSubmit, selectedDate, initia
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Хто був ініціатором</Label>
-                  <Input {...register('initiator')} placeholder="Наприклад: Я, Вона, Разом" />
+                  <Label>Ким ініційовано?</Label>
+                  <div className="flex gap-2">
+                    {['мною', 'нею', 'разом'].map(init => (
+                      <Button
+                        key={init}
+                        type="button"
+                        variant={watch('initiator') === init ? 'default' : 'outline'}
+                        className="flex-1"
+                        onClick={() => setValue('initiator', watch('initiator') === init ? '' : init)}
+                      >
+                        {init}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Тривалість (хв)</Label>

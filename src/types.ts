@@ -1,11 +1,4 @@
-export type Position = 
-  | 'Місіонерська' 
-  | 'Ззаду (Doggy Style)' 
-  | 'Наїздниця' 
-  | 'Зворотна наїздниця' 
-  | 'Ложки' 
-  | 'Стоячи' 
-  | 'Інше';
+export type Position = string;
 
 export type SkipReason = 
   | 'Втома' 

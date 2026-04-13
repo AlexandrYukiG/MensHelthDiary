@@ -95,7 +95,7 @@ export function CalendarView({ entries, onDateSelect, onAddEntry, onEditEntry, o
                         <div><span className="text-muted-foreground">Моя еякуляція:</span> {entry.count ?? 0}</div>
                         <div><span className="text-muted-foreground">Її оргазм:</span> {entry.herCount ?? 0}</div>
                         <div><span className="text-muted-foreground">Тривалість:</span> {entry.duration ? `${entry.duration} хв` : '-'}</div>
-                        <div><span className="text-muted-foreground">Ініціатор:</span> {entry.initiator || '-'}</div>
+                        <div><span className="text-muted-foreground">Ініційовано:</span> {entry.initiator || '-'}</div>
                       </div>
                       {entry.toys && (
                         <div className="text-sm">
