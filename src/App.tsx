@@ -656,10 +656,8 @@ export default function App() {
             </Dialog>
 
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" title="Налаштування">
-                  <Settings className="w-5 h-5 text-slate-500" />
-                </Button>
+              <DropdownMenuTrigger render={<Button variant="ghost" size="icon" title="Налаштування" />}>
+                <Settings className="w-5 h-5 text-slate-500" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
