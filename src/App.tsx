@@ -545,6 +545,20 @@ export default function App() {
     return <div className="min-h-screen flex items-center justify-center bg-slate-50">Завантаження...</div>;
   }
 
+  const handleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      if (error?.code === 'auth/unauthorized-domain') {
+        toast.error('Домен потрібно авторизувати у Firebase Console.');
+      } else if (error?.code === 'auth/popup-closed-by-user') {
+        toast.error('Авторизацію скасовано.');
+      } else {
+        toast.error('Помилка авторизації: ' + (error?.message || 'Невідома помилка'));
+      }
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">
@@ -555,7 +569,7 @@ export default function App() {
         <p className="text-slate-500 mb-8 text-center max-w-sm">
           Приватний та безпечний простір для відстеження вашого інтимного здоров'я.
         </p>
-        <Button onClick={signInWithGoogle} size="lg" className="rounded-full px-8">
+        <Button onClick={handleLogin} size="lg" className="rounded-full px-8">
           Увійти через Google
         </Button>
       </div>
